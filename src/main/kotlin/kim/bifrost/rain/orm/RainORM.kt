@@ -10,7 +10,11 @@ object RainORM : Plugin() {
 
     override fun onEnable() {
         submit(async = true) {
-            AppDatabase.exampleDao.insert(ExampleEntity(null, "MESSAGE", "ColdRain_Moro", "阿巴阿巴"))
+            AppDatabase.exampleDao.insert(ExampleEntity(0, "MESSAGE", "Rain", "Ktor"))
+            AppDatabase.exampleDao.insert(ExampleEntity(0, "MESSAGE", "Rain", "Spring Boot"))
+            AppDatabase.exampleDao.queryAll().forEach {
+                info(it.toString())
+            }
             info("create OK!")
         }
     }

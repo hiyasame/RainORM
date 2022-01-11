@@ -19,9 +19,13 @@ import java.sql.ResultSet
  * @param set
  * @return
  */
-@Suppress("UNCHECKED_CAST")
 inline fun <reified T> ResultSet.adaptResultSet(): T {
     val clazz = T::class.java
+    return adaptResultSet(clazz)
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T> ResultSet.adaptResultSet(clazz: Class<T>): T {
     val unsafe = clazz.unsafeInstance()
     // 使用Reflex缓存数据类，避免重复获取字段
     val fields = ReflexClass.find(clazz).savingFields

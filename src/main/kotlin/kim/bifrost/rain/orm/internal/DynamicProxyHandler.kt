@@ -2,12 +2,12 @@ package kim.bifrost.rain.orm.internal
 
 import kim.bifrost.rain.orm.adaptResultSet
 import kim.bifrost.rain.orm.api.*
+import kim.bifrost.rain.orm.api.Column
+import kim.bifrost.rain.orm.api.Query
 import taboolib.common.reflect.ReflexClass
-import taboolib.module.database.ColumnOptionSQL
-import taboolib.module.database.ColumnTypeSQL
-import taboolib.module.database.HostSQL
-import taboolib.module.database.Table
+import taboolib.module.database.*
 import java.lang.reflect.*
+import java.sql.Statement
 
 /**
  * kim.bifrost.rain.orm.impl.DynamicProxyHandler
@@ -53,7 +53,7 @@ class DynamicProxyHandler<T: IDao<*>>(
                         }
                     }
                 }
-        }.apply { workspace(dataSource) { createTable(true) } }
+        }.apply { workspace(dataSource) { createTable(true) }.run() }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -85,20 +85,24 @@ class DynamicProxyHandler<T: IDao<*>>(
                             val fields = ReflexClass.find(entityClass).savingFields
                             fields.forEach {
                                 val column = it.getAnnotation(Column::class.java) ?: return@forEach
-                                println(it.get(insertObj))
                                 put(column.name, it.get(insertObj))
                             }
                         }
                         insert(*insertMap.keys.toTypedArray()) { value(*insertMap.values.toTypedArray()) }
-                    }
+                    }.run()
                 }
                 is Query -> {
                     val sql = annotation.sql.replace("{table}", tableName)
-                    if (method.returnType == Void::class.java) {
+                    if (method.returnType.name == "void") {
                         dataSource.connection.createStatement().executeUpdate(sql)
                         return null
                     }
-                    return dataSource.connection.createStatement().executeQuery(sql).adaptResultSet()
+                    val list = arrayListOf<Any?>()
+                    val result = dataSource.connection.createStatement().executeQuery(sql)
+                    while (result.next()) {
+                        list.add(result.adaptResultSet(entityClass))
+                    }
+                    return list
                 }
             }
         }

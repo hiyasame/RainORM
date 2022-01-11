@@ -16,7 +16,7 @@ data class ExampleEntity(
     // PrimaryKey 不用写option
     @PrimaryKey(autoGenerate = true)
     @Column(name = "id", type = ColumnTypeSQL.INT)
-    val id: Int? = null,
+    val id: Int = 0,
     @Column(name = "type", type = ColumnTypeSQL.TEXT, options = [ColumnOptionSQL.NOTNULL])
     val type: String,
     @Column(name = "user", type = ColumnTypeSQL.TEXT, options = [ColumnOptionSQL.NOTNULL])
