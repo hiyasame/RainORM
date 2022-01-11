@@ -7,4 +7,5 @@ package kim.bifrost.rain.orm.api
  * @author 寒雨
  * @since 2022/1/11 2:13
  **/
+@Target(AnnotationTarget.FUNCTION)
 annotation class DSL

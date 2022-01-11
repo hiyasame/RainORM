@@ -5,7 +5,9 @@
 > 
 > 设计参考了Android Jetpack Room
 > 
-> 提供接口, 可供外部实现
+> ~~提供接口, 可供外部实现~~
+> 
+> 个人能力原因，暂不提供外部实现接口，只提供TabooLib平台实现
 
 ## 未完工
 算是对自己Kotlin开发能力的一次实践
@@ -28,16 +30,16 @@ data class ExampleEntity(
 )
 
 interface ExampleDAO : IDao<ExampleEntity> {
-    @Query("SELECT * FROM $tableName")
+    @Query("SELECT * FROM {table}")
     fun queryAll(): List<ExampleEntity>
 
     @Insert
     fun insert(entity: ExampleEntity)
     
-    @Query("DELETE FROM $tableName")
+    @Query("DELETE FROM {table}")
     fun delete()
     
-    @Query("SELECT WHERE id > {id} FROM $tableName")
+    @Query("SELECT WHERE id > {id} FROM {table}")
     fun querySome(id: Int): List<ExampleEntity>
     
     // 使用TabooLib DSL语句控制
@@ -46,19 +48,25 @@ interface ExampleDAO : IDao<ExampleEntity> {
         return table.workspace(datasource) {
             select { where { "user" eq name } }
         }.firstOrNull {
-            adaptResultSet(it)
+            adaptResultSet()
         }
     }
 }
 
 object AppDatabase {
+    /**
+     * 也可通过ORMBuilder#buildFromConf(ConfigurationSection, String)直接构建
+     */
+    private val builder by lazy {
+        ORMBuilder.newBuilder()
+            .host("localhost")
+            .port(3306)
+            .user("root")
+            .password("root")
+            .database("database")
+            .buildHost()
+    } 
     
-    private val builder = ORMBuilder.newBuilder(TabooLibPlatfrom::class)
-        .host("localhost")
-        .port(3306)
-        .user("root")
-        .password("root")
-        .database("database")
     
     val exampleTableDao by lazy {
         // 表名 DAO类

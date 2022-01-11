@@ -22,9 +22,4 @@ interface IDao<T> {
      * SQL Table
      */
     val table: Table<Host<SQL>, SQL>
-
-    /**
-     * Table name
-     */
-    val tableName: String
 }
